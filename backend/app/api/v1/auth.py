@@ -49,7 +49,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     # If Student, create initial profile
-    if user_in.role == UserRole.STUDENT:
+    if user_in.role == UserRole.ADMIN:
         student_profile = StudentProfile(
             user_id=new_user.id,
             roll_number=user_in.roll_number,
