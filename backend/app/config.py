@@ -16,7 +16,10 @@ class Settings(BaseSettings):
 
     # Database
     # Default to postgresql, but can fall back to sqlite:///./placement.db for quick local dev
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/placement_db"
+    DATABASE_URL: str = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./placement.db"
+)
 
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
