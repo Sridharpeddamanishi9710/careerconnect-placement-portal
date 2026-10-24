@@ -23,6 +23,7 @@ class Settings(BaseSettings):
 
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
+        "https://careerconnect-placement-portal.vercel.app",
         "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:80",
