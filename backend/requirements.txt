@@ -14,3 +14,4 @@ httpx>=0.27.0
 pytest>=8.0.0
 # psycopg2-binary is used for PostgreSQL deployment in Docker and production
 psycopg2-binary>=2.9.9; sys_platform != "win32" or platform_machine != "ARM64"
+psycopg[binary]
