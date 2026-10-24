@@ -15,8 +15,11 @@ try:
         connect_args=connect_args,
         pool_pre_ping=True
     )
-    # Test connection attempt or dialect check
-    engine.dialect.initialize(engine.connect() if settings.DATABASE_URL.startswith("sqlite") else None)
+
+    # Test the connection
+    with engine.connect() as conn:
+        pass
+
 except Exception as e:
     # Graceful fallback to SQLite if PostgreSQL driver is not installed locally
     fallback_url = "sqlite:///./placement.db"
