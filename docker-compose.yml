@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: placement_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-placement_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-placement_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-placement_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-placement_user} -d ${POSTGRES_DB:-placement_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - placement_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: placement_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-placement_user}:${POSTGRES_PASSWORD:-placement_pass}@db:5432/${POSTGRES_DB:-placement_db}
+      - SECRET_KEY=${SECRET_KEY:-super-secret-placement-jwt-key-change-in-production-2026}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    ports:
+      - "8000:8000"
+    volumes:
+      - resumes_data:/app/uploads/resumes
+    networks:
+      - placement_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: placement_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - placement_network
+
+volumes:
+  postgres_data:
+    driver: local
+  resumes_data:
+    driver: local
+
+networks:
+  placement_network:
+    driver: bridge
